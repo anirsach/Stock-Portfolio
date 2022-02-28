@@ -1,9 +1,9 @@
 const express = require('express');
 const app = express();
-const atlas = "mongodb+srv://firstuser:anirudh8334@cluster0.hnmyu.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+const atlas = "mongodb+srv://firstuser:anirudh8334@cluster0.hnmyu.mongodb.net/myFirstDatabase?retryWrites=true&w=majority" || 'mongodb://localhost:27017/portfolio'
 
 const mongoose = require('mongoose');
-mongoose.connect(atlas || 'mongodb://localhost:27017/portfolio')
+mongoose.connect(atlas)
     .then(() => {
         console.log("Connection sucessful")
     })
