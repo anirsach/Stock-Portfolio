@@ -1,0 +1,15 @@
+<% layout('layouts/boilerplate') %>
+    <form action="/" method="POST">
+        <label for="user">Enter the user:</label>
+        <input type="text" id="user" name="portfolio[user]">
+        <label for="capital">Enter the Capital:</label>
+        <input type="number" id="capital" name="portfolio[capital]">
+        <label for="name">Enter asset name:</label>
+        <input type="text" name="asset[name]" id="name">
+        <label for="price">Enter the price at which bought:</label>
+        <input type="number" id="price" name="asset[price]">
+        <label for="quantity">Enter quantity:</label>
+        <input type="number" id="quantity" name="asset[quantity]">
+
+        <button>Submit</button>
+    </form>

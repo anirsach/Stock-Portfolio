@@ -1,0 +1,8 @@
+<% layout('layouts/boilerplate') %>
+    <form action="/edit/<%=details._id%>" method="POST">
+        <label for="user">Enter the user:</label>
+        <input type="text" id="user" name="user">
+        <label for="capital">Enter the Capital:</label>
+        <input type="number" id="capital" name="capital">
+        <button>Submit</button>
+    </form>

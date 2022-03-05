@@ -1,0 +1,36 @@
+<% layout('layouts/boilerplate') %>
+    <!-- <img src="https://images.unsplash.com/photo-1524673450801-b5aa9b621b76?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2069&q=80" -->
+    <!-- alt=""> -->
+
+    <h1>Welcome <%= onePortfolio.user %>
+    </h1>
+
+    <h2>
+        capital: <%=onePortfolio.capital%>
+    </h2>
+    <a href="/edit/<%=onePortfolio._id%>">EDIT username or capital</a>
+    <a href="/delete/<%=onePortfolio._id%>">DELETE user</a>
+    <div>
+        <h2>Assets</h2>
+    </div>
+    <div>
+
+        <% for(let asset of onePortfolio.asset){%>
+            <h3>
+                <div>
+                    <%= asset.name%>
+                        <%= asset.price%>
+                            <%= asset.quantity%>
+                                <%= asset.cprice%>
+
+                </div>
+            </h3>
+            <a href="/asset/edit/<%=asset._id%>">Edit asset</a>
+            <a href="/asset/delete/<%=asset._id%>">Delete asset</a>
+            <% } %>
+
+    </div>
+
+
+
+    <a href="/asset">Add Assets</a>
