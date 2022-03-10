@@ -5,10 +5,12 @@ const mongoose = require('mongoose');
 const bcrypt = require("bcrypt")
 const session = require("express-session");
 const axios = require("axios")
+const { stockNames, script } = require("./seed")
 
 
 const portfolio = require('./models/user')
-const Asset = require('./models/asset')
+const Asset = require('./models/asset');
+
 
 const atlas = "mongodb+srv://firstuser:anirudh8334@cluster0.hnmyu.mongodb.net/myFirstDatabase?retryWrites=true&w=majority" || 'mongodb://localhost:27017/portfolio'
 
@@ -42,7 +44,7 @@ const getData = async (name) => {
     };
 
     const cprice = await axios.request(options)
-    return cprice.data.quoteResponse.result[0].bid
+    return cprice.data.quoteResponse.result[0].fiftyTwoWeekHigh
 }
 
 app.post("/signup", async (req, res) => {
@@ -61,7 +63,6 @@ app.get("/login", (req, res) => {
 app.post("/login", async (req, res) => {
     const { user, password } = req.body;
     const newUser = await portfolio.findOne({ user: user })
-    console.log(newUser)
     try {
         const valid = await bcrypt.compare(password, newUser.password)
         if (valid) {
@@ -81,14 +82,19 @@ app.post("/login", async (req, res) => {
 
 app.get("/", async (req, res) => {
     if (req.session.user_id) {
+        var value = 0;
         const onePortfolio = await portfolio.findOne({ _id: req.session.user_id }).populate('asset')
         for (let asset of onePortfolio.asset) {
+            console.log(asset.name)
             var cprice = await getData(asset.name);
-            var newAssetData = await Asset.findByIdAndUpdate(asset._id, { cprice: cprice })
+            console.log("Cprice is: ", cprice)
+            value = value + (asset.cprice * asset.quantity)
+            var assetPL = ((asset.cprice - asset.price) * asset.quantity).toFixed(2);
+            var newAssetData = await Asset.findByIdAndUpdate(asset._id, { cprice: cprice, assetPL: assetPL })
             await newAssetData.save();
             console.log(newAssetData)
         }
-        res.render("main/index", { onePortfolio })
+        res.render("main/index", { onePortfolio, value })
 
     }
     else {
@@ -96,56 +102,27 @@ app.get("/", async (req, res) => {
     }
 })
 
-app.get("/new", async (req, res) => {
-    if (req.session.user_id) {
-        res.render("main/new")
-    }
-    else {
-        res.render("auth/show")
-    }
-})
+// app.get("/", async (req, res) => {
+//     if (req.session.user_id) {
+//         var value = 0;
+//         const onePortfolio = await portfolio.findOne({ _id: req.session.user_id }).populate('asset')
+//         for (let asset of onePortfolio.asset) {
+//             // var cprice = await getData(asset.name);
+//             value = value + (asset.cprice * asset.quantity)
+//             var assetPL = ((asset.cprice - asset.price) * asset.quantity).toFixed(2);
+//             var newAssetData = await Asset.findByIdAndUpdate(asset._id, { assetPL: assetPL })
+//             await newAssetData.save();
+//             console.log(newAssetData)
+//         }
+//         res.render("main/index", { onePortfolio, value })
 
-app.post("/", async (req, res) => {
+//     }
+//     else {
+//         res.render("auth/show")
+//     }
+// })
 
-    const newportfolio = new portfolio(req.body.portfolio)
-    const findAsset = new Asset(req.body.asset)
-    newportfolio.asset.push(findAsset)
 
-    await findAsset.save()
-    await newportfolio.save()
-
-    res.redirect("/")
-})
-
-app.get("/show/:id", async (req, res) => {
-    if (req.session.user_id) {
-        const details = await portfolio.findById(req.params.id)
-        res.render("main/show", { details })
-    }
-    else {
-        res.render("auth/show")
-    }
-})
-
-app.get("/edit/:id", async (req, res) => {
-    if (req.session.user_id) {
-        const details = await portfolio.findById(req.params.id)
-        res.render("main/edit", { details })
-    }
-    else {
-        res.render("auth/show")
-    }
-})
-
-app.post("/edit/:id", async (req, res) => {
-    const id = req.params.id
-    const { user, capital } = req.body;
-    console.log(user)
-    const newportfolio = await portfolio.findByIdAndUpdate(id, { user: user, capital: capital })
-    await newportfolio.save()
-
-    res.redirect("/")
-})
 
 app.get("/delete/:id", async (req, res) => {
     if (req.session.user_id) {
@@ -167,8 +144,8 @@ app.get("/delete/:id", async (req, res) => {
 app.get("/asset", async (req, res) => {
     if (req.session.user_id) {
         const id = req.session.user_id;
-
-        res.render("asset/new", { id })
+        console.log(stockNames)
+        res.render("asset/new", { id, stockNames, script })
     }
     else {
         res.render("auth/show")
@@ -178,7 +155,8 @@ app.get("/asset", async (req, res) => {
 app.post("/asset", async (req, res) => {
     const id = req.session.user_id;
     const newdata = await portfolio.findById({ _id: id })
-    const newAsset = new Asset(req.body.asset)
+    const { name, price, quantity } = req.body.asset
+    const newAsset = new Asset({ name: name, price: price, quantity: quantity, cprice: 0, assetPL: 0 })
     await newAsset.save()
     newdata.asset.push(newAsset)
     await newdata.save()
@@ -186,7 +164,7 @@ app.post("/asset", async (req, res) => {
     res.redirect("/")
 })
 
-app.post('/logout', (req, res) => {
+app.get('/logout', (req, res) => {
     req.session._id = null;
     res.redirect("/login")
 })

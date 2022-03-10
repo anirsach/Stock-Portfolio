@@ -1,4 +1,4 @@
-<% layout("layouts/boilerplate") %>
+<!-- <% layout("layouts/boilerplate") %>
     <div class="container border align-items-end" style="height: 500px;">
         <div class="row ">my row
             <div class="col">col1</div>
@@ -6,3 +6,55 @@
 
         </div>
     </div>
+
+    app.get("/new", async (req, res) => {
+        if (req.session.user_id) {
+            res.render("main/new")
+        }
+        else {
+            res.render("auth/show")
+        }
+    })
+    
+    app.post("/", async (req, res) => {
+    
+        const newportfolio = new portfolio(req.body.portfolio)
+        const findAsset = new Asset(req.body.asset)
+        newportfolio.asset.push(findAsset)
+    
+        await findAsset.save()
+        await newportfolio.save()
+    
+        res.redirect("/")
+    })
+    
+    app.get("/show/:id", async (req, res) => {
+        if (req.session.user_id) {
+            const details = await portfolio.findById(req.params.id)
+            res.render("main/show", { details })
+        }
+        else {
+            res.render("auth/show")
+        }
+    })
+    
+    app.get("/edit", async (req, res) => {
+        if (req.session.user_id) {
+            const id = req.session.user_id
+            const details = await portfolio.findById(id)
+            res.render("main/edit", { details })
+        }
+        else {
+            res.render("auth/show")
+        }
+    })
+    
+    app.post("/edit/:id", async (req, res) => {
+        const id = req.params.id
+        const { user, capital } = req.body;
+        console.log(user)
+        const newportfolio = await portfolio.findByIdAndUpdate(id, { user: user, capital: capital })
+        await newportfolio.save()
+    
+        res.redirect("/")
+    }) -->

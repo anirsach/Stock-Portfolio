@@ -6,31 +6,64 @@
     </h1>
 
     <h2>
-        capital: <%=onePortfolio.capital%>
-    </h2>
-    <a href="/edit/<%=onePortfolio._id%>">EDIT username or capital</a>
-    <a href="/delete/<%=onePortfolio._id%>">DELETE user</a>
-    <div>
-        <h2>Assets</h2>
-    </div>
-    <div>
+        Portfolio Value: <%=value%>
+            <h2>Assets</h2>
+            </div>
 
-        <% for(let asset of onePortfolio.asset){%>
-            <h3>
-                <div>
-                    <%= asset.name%>
-                        <%= asset.price%>
-                            <%= asset.quantity%>
-                                <%= asset.cprice%>
+            <table class="table table-primary table-striped">
+                <thead>
+                    <tr class="table-dark">
+                        <th scope="col">#</th>
+                        <th scope="col">Stock</th>
+                        <th scope="col">Buy Price</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Current Price</th>
+                        <th scope="col">P/L</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
 
-                </div>
-            </h3>
-            <a href="/asset/edit/<%=asset._id%>">Edit asset</a>
-            <a href="/asset/delete/<%=asset._id%>">Delete asset</a>
-            <% } %>
+                    <% var i=0; %>
 
-    </div>
+                        <% for(let asset of onePortfolio.asset){%>
+                            <% i++ %>
+                                <tr>
+                                    <th scope="row">
+                                        <%= i %>
+                                    </th>
+                                    <td>
+                                        <%= asset.name%>
+                                    </td>
+                                    <td>
+                                        <%= asset.price%>
+                                    </td>
+                                    <td>
+                                        <%= asset.quantity%>
+                                    </td>
+                                    <td>
+                                        <%= asset.cprice%>
+                                    </td>
+                                    <td>
+                                        <%= asset.assetPL%>
+                                    </td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <a class="btn btn-success dropdown-toggle btn-sm" href="#" role="button"
+                                                id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+
+                                            </a>
+
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                                <li><a class="dropdown-item" href="/asset/edit/<%=asset._id%>"">Edit</a></li>
+                                      <li><a class=" dropdown-item" href="/asset/delete/<%=asset._id%>">Delete</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% } %>
 
 
 
-    <a href="/asset">Add Assets</a>
+                </tbody>
+            </table>
