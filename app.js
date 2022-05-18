@@ -6,13 +6,14 @@ const bcrypt = require("bcrypt")
 const session = require("express-session");
 const axios = require("axios")
 const { stockNames, script } = require("./seed")
+require("dotenv").config();
 
 
 const portfolio = require('./models/user')
 const Asset = require('./models/asset');
 
 
-const atlas = "mongodb+srv://firstuser:anirudh8334@cluster0.hnmyu.mongodb.net/myFirstDatabase?retryWrites=true&w=majority" || 'mongodb://localhost:27017/portfolio'
+const atlas = process.env.DATABASE_URL || 'mongodb://localhost:27017/portfolio'
 
 
 mongoose.connect(atlas, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -27,7 +28,7 @@ mongoose.connect(atlas, { useNewUrlParser: true, useUnifiedTopology: true })
 app.engine('ejs', ejsMate)
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
-app.use(session({ secret: "notagoodsecret" }))
+app.use(session({ secret: process.env.SECRET }))
 
 app.get("/signup", (req, res) => {
     res.render("auth/signup")
@@ -39,7 +40,7 @@ const getData = async (name) => {
         url: `https://yfapi.net/v6/finance/quote?region=US&lang=en&symbols=${name}`,
         params: { modules: 'defaultKeyStatistics,assetProfile' },
         headers: {
-            'x-api-key': 'nDCJebvQMh55KZYwPrVd75UXlnhWpFuf1CuEZ9n2'
+            'x-api-key': process.env.YAHOO_KEY
         }
     };
 
@@ -70,7 +71,7 @@ app.post("/login", async (req, res) => {
             res.redirect('/')
         }
         else {
-            res.send("TRy again")
+            res.send("Try again")
         }
     }
     catch {
@@ -101,28 +102,6 @@ app.get("/", async (req, res) => {
         res.render("auth/show")
     }
 })
-
-// app.get("/", async (req, res) => {
-//     if (req.session.user_id) {
-//         var value = 0;
-//         const onePortfolio = await portfolio.findOne({ _id: req.session.user_id }).populate('asset')
-//         for (let asset of onePortfolio.asset) {
-//             // var cprice = await getData(asset.name);
-//             value = value + (asset.cprice * asset.quantity)
-//             var assetPL = ((asset.cprice - asset.price) * asset.quantity).toFixed(2);
-//             var newAssetData = await Asset.findByIdAndUpdate(asset._id, { assetPL: assetPL })
-//             await newAssetData.save();
-//             console.log(newAssetData)
-//         }
-//         res.render("main/index", { onePortfolio, value })
-
-//     }
-//     else {
-//         res.render("auth/show")
-//     }
-// })
-
-
 
 app.get("/delete/:id", async (req, res) => {
     if (req.session.user_id) {
